@@ -1,0 +1,107 @@
+async function identifyPlant() {
+    const fileInput = document.getElementById('imageInput');
+    const resultDiv = document.getElementById('result');
+    const loadingDiv = document.getElementById('loading');
+    
+    if (fileInput.files.length === 0) {
+        alert("እባክዎ መጀመሪያ ፎቶ ይምረጡ!");
+        return;
+    }
+
+    loadingDiv.style.display = "block";
+    resultDiv.style.display = "none";
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    
+    reader.onloadend = async () => {
+        const base64Image = reader.result.split(',')[1];
+
+        try {
+            // We now call our local Vercel API function
+            const response = await fetch("/api/identify", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: base64Image })
+            });
+
+            const data = await response.json();
+            loadingDiv.style.display = "none";
+            resultDiv.style.display = "block";
+
+            if (data.result && data.result.classification.suggestions.length > 0) {
+                const topSuggestion = data.result.classification.suggestions[0];
+                resultDiv.innerHTML = `
+                    <div class="stem-tag">STEM Discovery</div>
+                    <h3 style="margin:0; color:var(--primary-color);">${topSuggestion.name}</h3>
+                    <p style="margin:5px 0; font-size:14px;">
+                        <b>እርግጠኝነት (Match):</b> ${(topSuggestion.probability * 100).toFixed(1)}%
+                    </p>
+                    <hr style="border:0; border-top:1px solid #ddd; margin:10px 0;">
+                    <p style="font-size:14px; line-height:1.6; color:#444;">
+                        ይህ ተክል በሳይንሳዊ ስሙ <b>${topSuggestion.name}</b> ይባላል። በዲላ STEM Center ተጨማሪ መረጃዎችን መፈለግ ትችላለህ።
+                    </p>
+                `;
+            } else {
+                resultDiv.innerHTML = "ይቅርታ፣ ተክሉን መለየት አልተቻለም። እባክዎ በሌላ ፎቶ ይሞክሩ።";
+            }
+        } catch (error) {
+            loadingDiv.style.display = "none";
+            alert("ግንኙነት ተቋርጧል፡ " + error);
+        }
+    };
+    reader.readAsDataURL(file);
+async function identifyPlant() {
+    const fileInput = document.getElementById('imageInput');
+    const resultDiv = document.getElementById('result');
+    const loadingDiv = document.getElementById('loading');
+    
+    if (fileInput.files.length === 0) {
+        alert("እባክዎ መጀመሪያ ፎቶ ይምረጡ!");
+        return;
+    }
+
+    loadingDiv.style.display = "block";
+    resultDiv.style.display = "none";
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    
+    reader.onloadend = async () => {
+        const base64Image = reader.result.split(',')[1];
+
+        try {
+            // We now call our local Vercel API function
+            const response = await fetch("/api/identify", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: base64Image })
+            });
+
+            const data = await response.json();
+            loadingDiv.style.display = "none";
+            resultDiv.style.display = "block";
+
+            if (data.result && data.result.classification.suggestions.length > 0) {
+                const topSuggestion = data.result.classification.suggestions[0];
+                resultDiv.innerHTML = `
+                    <div class="stem-tag">STEM Discovery</div>
+                    <h3 style="margin:0; color:var(--primary-color);">${topSuggestion.name}</h3>
+                    <p style="margin:5px 0; font-size:14px;">
+                        <b>እርግጠኝነት (Match):</b> ${(topSuggestion.probability * 100).toFixed(1)}%
+                    </p>
+                    <hr style="border:0; border-top:1px solid #ddd; margin:10px 0;">
+                    <p style="font-size:14px; line-height:1.6; color:#444;">
+                        ይህ ተክል በሳይንሳዊ ስሙ <b>${topSuggestion.name}</b> ይባላል። በዲላ STEM Center ተጨማሪ መረጃዎችን መፈለግ ትችላለህ።
+                    </p>
+                `;
+            } else {
+                resultDiv.innerHTML = "ይቅርታ፣ ተክሉን መለየት አልተቻለም። እባክዎ በሌላ ፎቶ ይሞክሩ።";
+            }
+        } catch (error) {
+            loadingDiv.style.display = "none";
+            alert("ግንኙነት ተቋርጧል፡ " + error);
+        }
+    };
+    reader.readAsDataURL(file);
+}
