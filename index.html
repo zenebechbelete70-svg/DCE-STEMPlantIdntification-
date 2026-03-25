@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dilla College STEM Center - Plant ID</title>
+    <style>
+        :root {
+            --primary-color: #2d5a27;
+            --secondary-color: #4CAF50;
+            --bg-color: #f0f4f0;
+            --text-dark: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 450px;
+            width: 90%;
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .header img {
+            width: 80px;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        /* Image Preview Box */
+        .preview-box {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            overflow: hidden;
+            background: #fafafa;
+        }
+
+        #previewImg {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+        }
+
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .btn-upload {
+            border: 2px solid #ddd;
+            color: #555;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        button.identify-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        button.identify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        /* Result & Loading */
+        #loading {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+            text-align: left;
+            background: #f1f8f1;
+            border-left: 6px solid var(--secondary-color);
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .stem-tag {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .dce-logo {
+    width: 100px;       /* መጠኑን እዚህ ጋር መቀየር ትችላለህ */
+    height: auto;
+    border-radius: 200%; /* ሎጎው ክብ እንዲሆን ካስፈለገ */
+    display: block;
+    margin: 50px auto;  /* መሃል ላይ እንዲሆን ያደርገዋል */
+    transition: 0.5s;
+}
+
+.dce-logo:hover {
+    transform: scale(1.2); /* ማውዝ ሲያርፍበት ትንሽ ጎላ እንዲል */
+}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>🌿 STEM Center Plant ID</h2>
+        <img src="/home/camaraadmin/Downloads/dcelogo.jpeg" alt="Dilla Education College Logo" class="dce-logo">
+
+    </div>
+
+    <div class="preview-box" id="dropArea">
+        <span id="placeholderText" style="color:#aaa;">ፎቶው እዚህ ይታያል</span>
+        <img id="previewImg" src="#" alt="Preview">
+    </div>
+
+    <div class="upload-btn-wrapper">
+        <button class="btn-upload">ፎቶ ምረጥ (Choose Image)</button>
+        <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
+    </div>
+
+    <button class="identify-btn" onclick="identifyPlant()">ተክሉን ለይ (Identify)</button>
+
+    <div id="loading">
+        <div class="spinner"></div>
+        <div style="color:#666; font-size:14px;">በመፈለግ ላይ... እባክዎ ይጠብቁ...</div>
+    </div>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    // ፎቶውን ወዲያውኑ ለማሳየት
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const output = document.getElementById('previewImg');
+            output.src = reader.result;
+            output.style.display = 'block';
+            document.getElementById('placeholderText').style.display = 'none';
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    async function identifyPlant() {
+        const fileInput = document.getElementById('imageInput');
+        const resultDiv = document.getElementById('result');
+        const loadingDiv = document.getElementById('loading');
+        
+        if (fileInput.files.length === 0) {
+            alert("እባክዎ መጀመሪያ ፎቶ ይምረጡ!");
+            return;
+        }
+
+        loadingDiv.style.display = "block";
+        resultDiv.style.display = "none";
+
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        
+        reader.onloadend = async () => {
+            const base64Image = reader.result.split(',')[1];
+            const MY_API_KEY = "hpyEDGwgjksZ9mAN3Y3zp3Dwm7H7ZAeEkwoF0Bce2ibkM1T08s"; 
+
+            try {
+                const response = await fetch("https://api.plant.id/v3/identification", {
+                    method: 'POST',
+                    headers: {
+                        'Api-Key': MY_API_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "images": [base64Image],
+                        "latitude": 6.41,
+                        "longitude": 38.31,
+                        "similar_images": true
+                    })
+                });
+
+                const data = await response.json();
+                loadingDiv.style.display = "none";
+                resultDiv.style.display = "block";
+
+                if (data.result && data.result.classification.suggestions.length > 0) {
+                    const topSuggestion = data.result.classification.suggestions[0];
+                    resultDiv.innerHTML = `
+                        <div class="stem-tag">STEM Discovery</div>
+                        <h3 style="margin:0; color:var(--primary-color);">${topSuggestion.name}</h3>
+                        <p style="margin:5px 0; font-size:14px;">
+                            <b>እርግጠኝነት (Match):</b> ${(topSuggestion.probability * 100).toFixed(1)}%
+                        </p>
+                        <hr style="border:0; border-top:1px solid #ddd; margin:10px 0;">
+                        <p style="font-size:14px; line-height:1.6; color:#444;">
+                            ይህ ተክል በሳይንሳዊ ስሙ <b>${topSuggestion.name}</b> ይባላል። በዲላ STEM Center ተጨማሪ መረጃዎችን መፈለግ ትችላለህ።
+                        </p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = "ይቅርታ፣ ተክሉን መለየት አልተቻለም። እባክዎ በሌላ ፎቶ ይሞክሩ።";
+                }
+            } catch (error) {
+                loadingDiv.style.display = "none";
+                alert("ግንኙነት ተቋርጧል፡ " + error);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
+
+</body>
+</html>
